@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         val user10 = User(10, "Sara", "Ruiz", "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1600")
         val user11 = User(11, "Sara", "Ruiz", "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1600")
         val user12 = User(12, "Sara", "Ruiz", "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1600")
+        val user13 = User(13, "Sara", "Ruiz", "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1600")
 
         user.add(user1)
         user.add(user2)
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         user.add(user10)
         user.add(user11)
         user.add(user12)
+        user.add(user13)
 
 
         return user
