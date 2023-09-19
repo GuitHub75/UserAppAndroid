@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">UsersSP</string>
     <string name="imgUserDesc">Imagen del Usuario</string>
+    <string name="dialogTitlle">Registro de usuario</string>
+    <string name="dialog_confirm">Registrar</string>
+    <string name="dialog_cancel">cancelar</string>
+    <string name="user_name">obligatorio</string>
+    <string name="hint_user_name">nombre de usuario</string>
 </resources>

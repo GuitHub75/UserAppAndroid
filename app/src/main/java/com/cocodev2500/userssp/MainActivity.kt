@@ -1,14 +1,19 @@
 package com.cocodev2500.userssp
 
+import android.content.Context
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.cocodev2500.userssp.databinding.ActivityMainBinding
-import com.cocodev2500.userssp.databinding.ItemUserBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var userAdappter: UserAdappter
     private lateinit var linearLayoutManager: RecyclerView.LayoutManager
@@ -19,15 +24,89 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater) //inflamos el layout de la actividad
         setContentView(binding.root) //establecemos el layout de la actividad
 
-        userAdappter = UserAdappter(getUser()) //creamos una instancia del adaptador y le pasamos la lista de usuarios
+        val preferences = getPreferences(Context.MODE_PRIVATE) //obtenemos las preferencias de la aplicacion
+        val isFirstTime = preferences.getBoolean("isFirstTime", true) //obtenemos el valor de la preferencia isFirstTime
 
-        linearLayoutManager = LinearLayoutManager(this) //creamos una instancia del layout manager
-        linearLayoutManager = GridLayoutManager(this, 1) //asignamos el numero de columnas que tendra el recycler view
+        if (isFirstTime){
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_register, null) //inflamos el layout del dialogo
+//            MaterialAlertDialogBuilder(this) //creamos un dialogo de alerta
+//                .setTitle(R.string.dialogTitlle)
+//                .setView(dialogView)
+//                .setCancelable(false)
+//                .setPositiveButton(R.string.dialog_confirm){ dialog, _ ->
+//                    dialog.dismiss()
+//                    val userName:String = dialogView.findViewById<TextInputEditText>(R.id.etUserName).text.toString() //obtenemos el valor del campo de texto
+//                        with(preferences.edit()){ //guardamos el valor de la preferencia userName
+//                            preferences.edit().putBoolean("isFirstTime", false).apply()
+//                            putString("userName", userName)
+//                            apply()
+//                        }
+//                    Toast.makeText(this, "Bienvenido $userName", Toast.LENGTH_SHORT).show()
+//                }
+//                .setNeutralButton("Invitado"){ dialog, _ ->
+//                    dialog.dismiss()
+//                }
+//
+////                .setNegativeButton(R.string.dialog_cancel){ dialog, _ ->
+////                    dialog.dismiss()
+////                }
+//                .show()
+
+           val dialog = MaterialAlertDialogBuilder(this) //creamos un dialogo de alerta
+                .setTitle(R.string.dialogTitlle)
+                .setView(dialogView)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_confirm){ _, _ -> }
+               .create()
+
+            dialog.show()
+
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val userName = dialogView.findViewById<TextInputEditText>(R.id.etUserName).text.toString() //obtenemos el valor del campo de texto
+               //isBlank() verifica si el string esta vacio o solo contiene espacios en blanco
+                if (userName.isBlank() || userName.isEmpty()){
+                    Toast.makeText(this, "Debes ingresar un nombre", Toast.LENGTH_SHORT).show()
+                }else{
+                    with(preferences.edit()){ //guardamos el valor de la preferencia userName
+                        preferences.edit().putBoolean("isFirstTime", false).apply()
+                        putString("userName", userName)
+                        apply()
+                    }
+                    Toast.makeText(this, "Bienvenido $userName", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+            }
+        }else{
+            val userName: String? = preferences.getString("userName", "")
+            Toast.makeText(this, "Bienvenido $userName", Toast.LENGTH_SHORT).show()
+        }
+
+        userAdappter = UserAdappter(getUser(),this) //creamos una instancia del adaptador y le pasamos la lista de usuarios
+
+        linearLayoutManager = GridLayoutManager(this,1)
+        
+        //agregar un espacio entre los elementos del recycler view (opcional)
 
         binding.rvUsers.apply { //aplicamos el layout manager y el adaptador al recycler view
+            setHasFixedSize(true)
             layoutManager = linearLayoutManager
             adapter = userAdappter
         }
+
+        val swipeHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT){
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder): Boolean {
+                return false //no permitimos mover los elementos del recycler view
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                userAdappter.remove(viewHolder.adapterPosition)
+                  }
+        })
+
+        swipeHelper.attachToRecyclerView(binding.rvUsers)
     }
 
     private fun getUser() : MutableList<User>{
@@ -62,5 +141,8 @@ class MainActivity : AppCompatActivity() {
 
 
         return user
+    }
+    override fun onClick(user: User, position: Int) {
+        Toast.makeText(this, "Usuario: $position ${user.name} ${user.lastName}", Toast.LENGTH_SHORT).show()
     }
 }
